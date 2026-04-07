@@ -1,0 +1,35 @@
+# Arquivos que NÃO precisam ir pro contexto do Docker build —
+# acelera o build e evita copiar lixo pra dentro da imagem.
+
+# VCS / IDE / Claude
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+.claude
+*.iml
+
+# Maven / build artifacts
+backend/target
+**/*.class
+
+# Frontend standalone (cópia espelho — o backend serve a versão de
+# backend/src/main/resources/static via classpath)
+frontend
+
+# Docs e schema (não vão pra runtime)
+docs
+db
+README.md
+*.md
+
+# OS junk
+.DS_Store
+Thumbs.db
+*.log
+
+# Próprio Dockerfile (não precisa estar dentro da imagem)
+Dockerfile
+.dockerignore
+render.yaml

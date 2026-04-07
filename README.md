@@ -123,6 +123,23 @@ Se o frontend mostrar esse toast, é uma das três coisas:
 | `GET`  | `/api/focus-profiles/active` | Perfil ativo no horário atual |
 | `GET/POST/PUT/DELETE` | `/api/focus-profiles[/{id}]` | CRUD de perfis |
 
+## Deploy no Render (gratuito)
+
+O repositório já contém [`Dockerfile`](Dockerfile) (multi-stage com `maven:3.9-eclipse-temurin-17` no build e `eclipse-temurin:17-jre` no runtime) e [`render.yaml`](render.yaml) declarativo.
+
+Para subir um demo público:
+
+1. Crie conta em <https://render.com> (sem cartão de crédito, login com GitHub)
+2. **New +** → **Blueprint** → conecte o repositório `camilenolli/mind-flow`
+3. Render lê o `render.yaml`, pré-preenche tudo, basta clicar **Apply**
+4. Aguarde o primeiro build (~3 a 5 min). A URL pública aparece em verde no topo: `https://mindflow-XXXX.onrender.com`
+
+A partir daí, todo `git push origin main` redeploya automaticamente.
+
+**Sobre o free tier:** 512MB RAM, dorme após 15min sem tráfego. A primeira requisição depois de dormir leva ~30–60s para acordar (é o JVM subindo). Para a demo acadêmica, isso é aceitável — após acordar, a navegação é fluida. O `Dockerfile` já está otimizado para esse perfil de recursos (Serial GC, `TieredStopAtLevel=1`, `Xmx450m`).
+
+**Persistência:** o deploy roda no perfil `dev` propositalmente (H2 em memória), então cada cold start repopula os dados de exemplo via `DataSeeder`. Para produção real com dados persistentes, troque para o perfil `prod` no `render.yaml` e provisione um Postgres externo (Neon, Supabase free tiers).
+
 ## Fora do escopo do MVP
 
 Colaboração entre usuários, modo offline, app mobile nativo, integrações externas (Notion/Obsidian), exportação de dados, IA para conexão automática de conceitos, gamificação, histórico de versões.
