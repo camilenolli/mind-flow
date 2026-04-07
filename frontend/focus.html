@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07080d" />
+  <title>MindFlow — Modo Foco</title>
+  <script>(function(){var t=localStorage.getItem("mindflow.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1 class="page-title">Modo Foco</h1>
+    <p class="page-subtitle">Defina contextos por horário. O sistema mostra apenas o que importa agora.</p>
+
+    <div class="grid grid-3">
+      <section class="panel">
+        <h2 id="form-title">Novo perfil</h2>
+        <p class="hint">Ex: "Trabalho" 08:00–18:00, "Faculdade" 19:00–22:00.</p>
+        <form id="profile-form">
+          <input type="hidden" id="profile-id" />
+          <div class="field"><span>Nome</span>
+            <input type="text" id="profile-name" required placeholder="Trabalho" />
+          </div>
+          <div class="row">
+            <div class="field" style="flex:1"><span>Início</span>
+              <input type="time" id="profile-start" required />
+            </div>
+            <div class="field" style="flex:1"><span>Fim</span>
+              <input type="time" id="profile-end" required />
+            </div>
+          </div>
+          <div class="actions">
+            <button type="submit" id="save-btn">Salvar</button>
+            <button type="button" class="ghost" id="profile-reset">Limpar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" style="grid-column: span 2;">
+        <h2 id="list-title">Perfis cadastrados</h2>
+        <p class="hint">Forçar um perfil ignora a janela horária e fixa o contexto até você desativar.</p>
+        <ul id="profiles-list" class="cards"></ul>
+      </section>
+
+      <section class="panel" style="grid-column: 1 / -1;">
+        <h2 id="how-title">Como funciona</h2>
+        <p class="muted" style="line-height:1.6">
+          O <strong>perfil ativo</strong> é determinado pelo horário atual, mas você pode forçar manualmente um perfil aqui.
+          Ao filtrar pelo perfil ativo nas telas de Notas e Flashcards, somente os itens vinculados ao contexto atual aparecem.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer>Feito por Camile · Guilherme · Maria Fernanda · Raul — Univille</footer>
+
+  <script src="js/layout.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/focus.js"></script>
+</body>
+</html>

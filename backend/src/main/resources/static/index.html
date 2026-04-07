@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07080d" />
+  <title>MindFlow — Início</title>
+  <script>(function(){var t=localStorage.getItem("mindflow.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1 class="page-title">Bem-vinda ao MindFlow</h1>
+    <p class="page-subtitle">Centralize seu conhecimento, conecte conceitos e revise no momento certo.</p>
+
+    <section class="stats" id="stats">
+      <div class="stat"><div class="label">Notas</div><div class="value">—</div></div>
+      <div class="stat"><div class="label">Flashcards</div><div class="value">—</div></div>
+      <div class="stat"><div class="label">Tags</div><div class="value">—</div></div>
+      <div class="stat"><div class="label">Perfis</div><div class="value">—</div></div>
+    </section>
+
+    <div class="grid grid-3">
+      <section class="panel" style="grid-column: span 2;">
+        <div class="panel-header">
+          <h2 id="recent-title">Notas recentes</h2>
+          <a href="notes.html" class="muted">Ver todas →</a>
+        </div>
+        <ul id="recent-notes" class="cards"></ul>
+      </section>
+
+      <section class="panel">
+        <h2 id="quick-title">Ação rápida</h2>
+        <p class="hint">Capture uma ideia agora — você organiza com tags depois.</p>
+        <form id="quick-form">
+          <div class="field">
+            <span>Título</span>
+            <input type="text" id="q-title" required maxlength="200" placeholder="Ex: Como funciona o DNS" />
+          </div>
+          <div class="field">
+            <span>Conteúdo</span>
+            <textarea id="q-content" rows="4" required placeholder="O que você acabou de aprender?"></textarea>
+          </div>
+          <div class="field">
+            <span>Tags (vírgula)</span>
+            <input type="text" id="q-tags" placeholder="DNS, Redes" />
+          </div>
+          <div class="actions">
+            <button type="submit" id="quick-submit-btn">Salvar nota</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" style="grid-column: 1 / -1;">
+        <h2 id="tags-title">Suas tags</h2>
+        <p class="hint">Tags são criadas automaticamente quando você digita um nome novo no campo "Tags" de uma nota — basta separar por vírgula. A relação N:N entre nota e tag conecta conceitos relacionados.</p>
+        <div id="tag-cloud" class="tag-cloud"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    Feito por Camile · Guilherme · Maria Fernanda · Raul — Univille
+  </footer>
+
+  <script src="js/layout.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

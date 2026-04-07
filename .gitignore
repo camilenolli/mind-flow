@@ -1,0 +1,22 @@
+# Maven
+backend/target/
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Claude Code (local agent state)
+.claude/
+
+# Logs / sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# Frontend
+node_modules/

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07080d" />
+  <title>MindFlow — Notas</title>
+  <script>(function(){var t=localStorage.getItem("mindflow.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1 class="page-title">Anotação Estruturada</h1>
+    <p class="page-subtitle">Externalize ideias com tags. O sistema conecta automaticamente conceitos relacionados.</p>
+
+    <div class="layout-3 grid">
+      <!-- Coluna 1 — Form -->
+      <section class="panel">
+        <h2 id="form-title">Nova nota</h2>
+        <form id="note-form">
+          <input type="hidden" id="note-id" />
+          <div class="field"><span>Título</span>
+            <input type="text" id="note-title" required maxlength="200" placeholder="Ex: O que é DNSSEC" />
+          </div>
+          <div class="field"><span>Conteúdo</span>
+            <textarea id="note-content" rows="6" required placeholder="Escreva livremente…"></textarea>
+          </div>
+          <div class="field"><span>Tags (separadas por vírgula — novas são criadas automaticamente)</span>
+            <input type="text" id="note-tags" placeholder="DNS, Segurança, Redes" />
+          </div>
+          <div class="field"><span>Vincular a perfil de foco</span>
+            <select id="note-profile"><option value="">— nenhum —</option></select>
+          </div>
+          <div class="actions">
+            <button type="submit" id="save-btn">Salvar</button>
+            <button type="button" class="ghost" id="note-reset">Limpar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Coluna 2 — Lista -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 id="list-title">Suas notas <span class="muted" id="notes-count"></span></h2>
+          <label class="switch">
+            <input type="checkbox" id="filter-by-active" />
+            <span class="track"></span>
+            <span>Apenas perfil ativo</span>
+          </label>
+        </div>
+        <div class="search">
+          <input type="search" id="note-search" placeholder="Buscar por título, conteúdo ou tag…" />
+        </div>
+        <ul id="notes-list" class="cards"></ul>
+      </section>
+
+      <!-- Coluna 3 — Relacionados -->
+      <section class="panel">
+        <h2 id="related-title">Conceitos relacionados</h2>
+        <p class="hint">Notas que compartilham tags com a selecionada (relação N:N).</p>
+        <ul id="related-list" class="cards"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer>Feito por Camile · Guilherme · Maria Fernanda · Raul — Univille</footer>
+
+  <script src="js/layout.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07080d" />
+  <title>MindFlow — Flashcards</title>
+  <script>(function(){var t=localStorage.getItem("mindflow.theme")||"dark";document.documentElement.dataset.theme=t;})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1 class="page-title">Flashcards</h1>
+    <p class="page-subtitle">Internalize o conhecimento com revisões. MVP usa sorteio aleatório — SM-2 vem nas próximas sprints.</p>
+
+    <div class="grid grid-3">
+      <!-- Sessão de revisão -->
+      <section class="panel" style="grid-column: 1 / -1;">
+        <div class="panel-header">
+          <h2 id="review-title">Revisar agora</h2>
+          <label class="switch">
+            <input type="checkbox" id="draw-active-only" />
+            <span class="track"></span>
+            <span>Apenas perfil ativo</span>
+          </label>
+        </div>
+
+        <div class="flashcard-stage">
+          <div id="flashcard" class="flashcard">
+            <div class="face front">
+              <span class="label">Pergunta</span>
+              <div class="text" id="card-q-text">Toque em "Sortear" para começar</div>
+              <div class="hint-tap">Clique no card para ver a resposta</div>
+            </div>
+            <div class="face back">
+              <span class="label">Resposta</span>
+              <div class="text" id="card-a-text">—</div>
+              <div class="hint-tap">Clique para voltar</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="draw-btn">Sortear flashcard</button>
+          <button class="ghost" id="flip-btn">Virar</button>
+        </div>
+      </section>
+
+      <!-- Form -->
+      <section class="panel">
+        <h2 id="form-title">Novo flashcard</h2>
+        <form id="card-form">
+          <div class="field"><span>Pergunta</span>
+            <input type="text" id="card-q" required placeholder="O que é DNS?" />
+          </div>
+          <div class="field"><span>Resposta</span>
+            <textarea id="card-a" required rows="3" placeholder="Sistema que traduz nomes…"></textarea>
+          </div>
+          <div class="field"><span>Nota relacionada</span>
+            <select id="card-note"><option value="">— nenhuma —</option></select>
+          </div>
+          <div class="field"><span>Perfil de foco</span>
+            <select id="card-profile"><option value="">— nenhum —</option></select>
+          </div>
+          <div class="actions"><button type="submit" id="create-btn">Criar</button></div>
+        </form>
+      </section>
+
+      <!-- Lista -->
+      <section class="panel" style="grid-column: span 2;">
+        <h2 id="list-title">Todos os flashcards <span class="muted" id="cards-count"></span></h2>
+        <ul id="cards-list" class="cards"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer>Feito por Camile · Guilherme · Maria Fernanda · Raul — Univille</footer>
+
+  <script src="js/layout.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/flashcards.js"></script>
+</body>
+</html>
