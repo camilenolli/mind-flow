@@ -1,12 +1,19 @@
 // Cliente fetch + estado global de perfil ativo (com override manual em localStorage).
 //
 // BASE inteligente:
-//   - Se servido pelo próprio Spring Boot (mesma origem na 8080), usa "/api" relativo.
-//   - Se servido em outra porta/host, usa URL absoluta para localhost:8080.
+//   - Localhost na 8080 (Spring Boot dev): "/api" relativo (mesma origem).
+//   - Localhost em outra porta (ex: python http.server na 5500): URL absoluta para localhost:8080.
+//   - Qualquer outro host (Render, deploy, github.io etc): "/api" relativo, pois o
+//     próprio Spring Boot serve os arquivos estáticos da mesma origem.
 const API = {
-  BASE: (location.protocol === "http:" || location.protocol === "https:") && location.port === "8080"
-        ? "/api"
-        : "http://localhost:8080/api",
+  BASE: (() => {
+    const host = location.hostname;
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
+    if (isLocal) {
+      return location.port === "8080" ? "/api" : "http://localhost:8080/api";
+    }
+    return "/api";
+  })(),
 
   async _req(path, options = {}) {
     const url = this.BASE + path;
