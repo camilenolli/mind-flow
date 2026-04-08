@@ -363,7 +363,8 @@ form label > span:first-child {
   font-weight: 500;
 }
 
-input[type=text], input[type=time], input[type=search],
+input[type=text], input[type=email], input[type=password],
+input[type=time], input[type=search],
 textarea, select {
   width: 100%;
   background: var(--bg-2);
@@ -374,8 +375,28 @@ textarea, select {
   font-size: 0.92rem;
   font-family: inherit;
   transition: border-color var(--t-fast), background var(--t-fast), box-shadow var(--t-fast);
+  -webkit-text-fill-color: var(--text); /* iOS/WebKit override de cor */
 }
 input::placeholder, textarea::placeholder { color: var(--muted); }
+
+/* Override do autofill do Chrome/Safari (que aplica fundo amarelo/branco
+   automaticamente em campos preenchidos pelo gerenciador de senhas).
+   O truque é usar uma sombra interna gigante na cor de fundo do input. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-2) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover,
+[data-theme="light"] input:-webkit-autofill:focus,
+[data-theme="light"] input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: rgba(124,92,255,0.6);
@@ -771,12 +792,15 @@ code {
   border-color: rgba(77,141,255,0.20);
 }
 [data-theme="light"] input[type=text],
+[data-theme="light"] input[type=email],
+[data-theme="light"] input[type=password],
 [data-theme="light"] input[type=time],
 [data-theme="light"] input[type=search],
 [data-theme="light"] textarea,
 [data-theme="light"] select {
   background: #ffffff;
   border-color: rgba(20,25,50,0.12);
+  -webkit-text-fill-color: var(--text);
 }
 [data-theme="light"] input:focus,
 [data-theme="light"] textarea:focus,
@@ -1021,7 +1045,8 @@ code {
   .stat .label { font-size: 0.66rem; }
 
   /* Inputs e textareas: maiores para touch (mín 16px evita zoom no iOS) */
-  input[type=text], input[type=time], input[type=search],
+  input[type=text], input[type=email], input[type=password],
+  input[type=time], input[type=search],
   textarea, select {
     font-size: 16px;
     padding: 0.75rem 0.85rem;
