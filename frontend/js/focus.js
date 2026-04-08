@@ -20,11 +20,10 @@ async function refresh() {
   try {
     const profiles = await API.listProfiles();
     const manual = ProfileState.getManual();
-    let autoActiveId = null;
-    try {
-      const a = await API.activeProfile();
-      autoActiveId = a ? a.id : null;
-    } catch {}
+    // Auto-ativo é calculado no cliente com a hora local do navegador
+    // (consistente com ProfileState.resolveActive — não usa o servidor).
+    const autoActive = profiles.find(isProfileActiveLocal);
+    const autoActiveId = autoActive ? autoActive.id : null;
 
     if (!profiles.length) {
       list.innerHTML = `<div class="empty">${ICONS.layers}<p><strong>Nenhum perfil cadastrado</strong></p><p>Crie seu primeiro contexto ao lado</p></div>`;

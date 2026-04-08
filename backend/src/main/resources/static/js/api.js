@@ -83,27 +83,47 @@ const API = {
 };
 
 // ============================================================
-// Perfil ativo: backend determina por horário, mas o usuário
-// pode forçar manualmente um perfil via localStorage.
+// Perfil ativo: o cálculo é feito no CLIENTE usando a hora local
+// do navegador. Por que não usar o endpoint /api/focus-profiles/active?
+// Porque o backend usa LocalTime.now() do servidor, e o Render roda em
+// Oregon (Pacific Time) — então um usuário no Brasil veria o perfil
+// errado. "Faculdade 19h-22h" significa 19h-22h NA HORA DO USUÁRIO.
+// O usuário ainda pode forçar manualmente um perfil via localStorage.
 // ============================================================
+function isProfileActiveLocal(profile) {
+  if (!profile || !profile.startTime || !profile.endTime) return false;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const [sh, sm] = String(profile.startTime).split(":").map(Number);
+  const [eh, em] = String(profile.endTime).split(":").map(Number);
+  const start = sh * 60 + sm;
+  const end = eh * 60 + em;
+  if (start < end) return cur >= start && cur < end;
+  // Janela cruzando meia-noite (ex: 22h-06h)
+  return cur >= start || cur < end;
+}
+
 const ProfileState = {
   KEY: "mindflow.manualProfileId",
 
   async resolveActive() {
-    const manual = this.getManual();
-    if (manual) {
-      try {
-        const profiles = await API.listProfiles();
-        const found = profiles.find(p => p.id === manual);
-        if (found) return { profile: found, manual: true };
-      } catch {}
-    }
+    let profiles = [];
     try {
-      const p = await API.activeProfile();
-      return { profile: p, manual: false };
+      profiles = await API.listProfiles();
     } catch {
       return { profile: null, manual: false };
     }
+
+    // 1) Override manual tem precedência
+    const manual = this.getManual();
+    if (manual) {
+      const found = profiles.find(p => p.id === manual);
+      if (found) return { profile: found, manual: true };
+    }
+
+    // 2) Auto-detecção pela hora local do navegador
+    const found = profiles.find(isProfileActiveLocal);
+    return { profile: found || null, manual: false };
   },
 
   getManual() {

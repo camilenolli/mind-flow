@@ -852,9 +852,26 @@ code {
   textarea, select {
     font-size: 16px;
     padding: 0.75rem 0.85rem;
+    min-width: 0;
+    max-width: 100%;
   }
   textarea { min-height: 110px; }
   button, .btn { padding: 0.78rem 1.15rem; }
+
+  /* iOS Safari teima em ignorar width:100% em input[type=time] e usa
+     a largura intrínseca do picker nativo, ultrapassando o container.
+     Desabilitar appearance neutraliza o styling nativo e nos devolve
+     controle total da largura. */
+  input[type=time] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* Permitir que .field/.row encolham abaixo do conteúdo intrínseco
+     em flex containers (impede empurrar a largura para fora do painel) */
+  .row, .row > .field, form > .field { min-width: 0; }
+  .row > .field { flex: 1 1 0%; }
 
   /* Cards de notas/flashcards na lista: padding menor */
   .card-item { padding: 0.85rem 0.95rem; }
