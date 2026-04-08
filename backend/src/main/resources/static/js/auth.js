@@ -42,15 +42,17 @@ const Auth = {
 
   // Chamadas REST de auth (não usam o api.js para evitar dependência circular
   // — auth.js precisa estar disponível antes de api.js no <head>).
+  // Importante: os paths começam com /auth/... e NÃO /api/auth/...,
+  // porque _apiBase() já retorna o prefixo /api.
   async login(email, password) {
     // Limpa qualquer sessão velha ANTES de tentar logar — evita que um token
     // stale do localStorage contamine a requisição.
     this.clear();
-    return this._postJson("/api/auth/login", { email, password });
+    return this._postJson("/auth/login", { email, password });
   },
   async register(name, email, password) {
     this.clear();
-    return this._postJson("/api/auth/register", { name, email, password });
+    return this._postJson("/auth/register", { name, email, password });
   },
 
   async _postJson(path, body) {

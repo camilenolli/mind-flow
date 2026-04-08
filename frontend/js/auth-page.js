@@ -8,9 +8,24 @@
     mark.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="12" x2="5.5" y2="5.5"/><line x1="12" y1="12" x2="18.5" y2="5.5"/><line x1="12" y1="12" x2="5.5" y2="18.5"/><line x1="12" y1="12" x2="18.5" y2="18.5"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><circle cx="5.5" cy="5.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="18.5" cy="5.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="5.5" cy="18.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="18.5" cy="18.5" r="1.8" fill="currentColor" stroke="none"/></svg>';
   }
 
-  // Se já estiver autenticado, redireciona pra home
+  // Se há um token salvo, valida-o com /auth/me ANTES de redirecionar.
+  // Cenário comum no Render free tier: usuário tem token válido sintaticamente
+  // mas o backend reiniciou e perdeu os usuários (cold start zerou o H2). Nesse
+  // caso, /auth/me retorna 401, limpamos o localStorage e ficamos no login.
+  // Nota: _apiBase() já retorna /api, então o path concatenado é /api/auth/me.
   if (Auth.isAuthenticated()) {
-    window.location.href = "index.html";
+    fetch(Auth._apiBase() + "/auth/me", {
+      headers: { "Authorization": "Bearer " + Auth.getToken() }
+    }).then(res => {
+      if (res.ok) {
+        window.location.href = "index.html";
+      } else {
+        Auth.clear();
+      }
+    }).catch(() => {
+      // Backend offline ou erro de rede — limpa pra deixar o usuário tentar logar
+      Auth.clear();
+    });
     return;
   }
 
