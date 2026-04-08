@@ -823,8 +823,23 @@ code {
 /* Mobile (≤720): cards e formulários enxutos */
 @media (max-width: 720px) {
   .shell { padding: 0.9rem 0.85rem 6rem; }
-  .panel { padding: 0.95rem 1rem; }
-  .grid, .grid-2, .grid-3 { gap: 0.85rem; }
+  .panel { padding: 1rem 1.05rem; }
+  .grid, .grid-2, .grid-3 { gap: 0.9rem; }
+
+  /* === Larguras iguais no mobile ===
+     Sobrescreve os style="grid-column: span 2" e style="grid-column: 1 / -1"
+     que usamos no desktop para criar o layout assimétrico. No mobile (1 col)
+     eles criam uma coluna implícita fantasma e fazem o painel "span" ficar
+     mais largo que os outros. Forçar auto faz todos terem mesma largura. */
+  .grid > [style*="grid-column"] { grid-column: auto !important; }
+
+  /* Header de painel (h2 + switch) quebra em duas linhas no mobile,
+     evitando o aperto entre o título e o controle */
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
 
   /* Stats cards: 2 colunas mas mais compactos */
   .stats { gap: 0.7rem; }
@@ -836,25 +851,40 @@ code {
   input[type=text], input[type=time], input[type=search],
   textarea, select {
     font-size: 16px;
-    padding: 0.7rem 0.8rem;
+    padding: 0.75rem 0.85rem;
   }
   textarea { min-height: 110px; }
-  button, .btn { padding: 0.75rem 1.1rem; }
+  button, .btn { padding: 0.78rem 1.15rem; }
 
   /* Cards de notas/flashcards na lista: padding menor */
-  .card-item { padding: 0.8rem 0.9rem; }
+  .card-item { padding: 0.85rem 0.95rem; }
   .card-item h3 { font-size: 0.92rem; }
   .card-item p { font-size: 0.8rem; }
   /* Em mobile os botões de ação ficam sempre visíveis (não há hover real) */
-  .card-item .row-actions { opacity: 1; position: static; margin-top: 0.55rem; justify-content: flex-end; }
+  .card-item .row-actions { opacity: 1; position: static; margin-top: 0.6rem; justify-content: flex-end; }
 
-  /* Flashcard de revisão: compacto mas legível */
-  .flashcard-stage { min-height: 200px; }
-  .flashcard { min-height: 200px; }
-  .flashcard .face { padding: 1.2rem 1rem; }
-  .flashcard .face .text { font-size: 1rem; line-height: 1.4; }
-  .flashcard .face .label { font-size: 0.6rem; }
-  .flashcard .face .hint-tap { font-size: 0.65rem; }
+  /* === Flashcard de revisão === arejado, não comprimido */
+  .flashcard-stage { min-height: 240px; margin: 0.4rem 0 1.3rem; }
+  .flashcard { min-height: 240px; }
+  .flashcard .face {
+    padding: 1.7rem 1.3rem;
+    gap: 0.9rem;
+  }
+  .flashcard .face .label { font-size: 0.66rem; }
+  .flashcard .face .text { font-size: 1.05rem; line-height: 1.5; }
+  .flashcard .face .hint-tap { font-size: 0.72rem; margin-top: 0.7rem; }
+
+  /* Botões do flashcard de revisão (Sortear / Virar): direto no painel,
+     sem form. Padding maior e gap mais aberto pra dar respiro. */
+  .panel > .actions {
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+  }
+  .panel > .actions button {
+    padding: 0.85rem 1.2rem;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
 
   /* Form de perfil: campos lado a lado viram empilhados em mobile estreito,
      mas até ~480px ainda cabe lado a lado se houver espaço suficiente */
@@ -902,8 +932,9 @@ code {
   .stat .value { font-size: 1.4rem; }
   .stat { padding: 0.75rem 0.8rem; }
 
-  /* Flashcard ainda menor */
-  .flashcard, .flashcard-stage { min-height: 180px; }
-  .flashcard .face { padding: 1rem 0.85rem; }
-  .flashcard .face .text { font-size: 0.95rem; }
+  /* Flashcard mantém respiro (220px) e padding generoso mesmo nas telas
+     mais estreitas — leitura é prioridade sobre economia de espaço */
+  .flashcard, .flashcard-stage { min-height: 220px; }
+  .flashcard .face { padding: 1.4rem 1.1rem; gap: 0.75rem; }
+  .flashcard .face .text { font-size: 1rem; line-height: 1.45; }
 }
