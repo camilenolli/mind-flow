@@ -5,9 +5,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,6 +25,8 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     private static final String HEADER = "Authorization";
     private static final String PREFIX = "Bearer ";
 
@@ -31,6 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtService jwt, UserDetailsServiceImpl users) {
         this.jwt = jwt;
         this.users = users;
+    }
+
+    /**
+     * Endpoints públicos onde o filtro JWT não deve nem tentar processar
+     * o header Authorization. Garante que mesmo se o cliente mandar um token
+     * stale/inválido, esses endpoints respondem normalmente.
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/api/auth/login")
+            || path.equals("/api/auth/register")
+            || path.equals("/api/health");
     }
 
     @Override
@@ -53,8 +71,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (JwtException | IllegalArgumentException e) {
-            // Token inválido/expirado: prossegue sem autenticação.
-            // O Spring Security devolverá 401 nos endpoints protegidos.
+            // Token inválido/malformado/expirado — limpa contexto e prossegue.
+            // Endpoints públicos (login/register/health) ainda respondem normalmente.
+            log.debug("[JwtFilter] Token inválido: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+        } catch (UsernameNotFoundException e) {
+            // Token tem assinatura válida MAS o usuário do subject não existe mais
+            // (ex: cold start do Render zerou o H2 in-memory). Esse caso é comum
+            // no free tier — não pode escalar para 401 em endpoints públicos.
+            log.debug("[JwtFilter] Usuário do token não existe mais: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+        } catch (Exception e) {
+            // Defensivo: qualquer outra exception durante autenticação não pode
+            // quebrar o pipeline; loga e prossegue sem auth.
+            log.warn("[JwtFilter] Erro inesperado processando token: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         }
 
