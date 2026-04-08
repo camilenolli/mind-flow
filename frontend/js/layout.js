@@ -2,7 +2,9 @@
 // Cada página chama Layout.mount("home" | "notes" | "flashcards" | "focus").
 
 const ICONS = {
-  brand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8l7 4 7-4M5 16l7 4 7-4"/></svg>',
+  // Logo MindFlow: grafo de conhecimento — nó central + 4 satélites conectados.
+  // Representa a relação N:N entre nota↔tag e a metáfora de "conceitos relacionados".
+  brand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="12" x2="5.5" y2="5.5"/><line x1="12" y1="12" x2="18.5" y2="5.5"/><line x1="12" y1="12" x2="5.5" y2="18.5"/><line x1="12" y1="12" x2="18.5" y2="18.5"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><circle cx="5.5" cy="5.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="18.5" cy="5.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="5.5" cy="18.5" r="1.8" fill="currentColor" stroke="none"/><circle cx="18.5" cy="18.5" r="1.8" fill="currentColor" stroke="none"/></svg>',
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a2 2 0 0 1-2 2h-4v-7H10v7H6a2 2 0 0 1-2-2V11z"/></svg>',
   notes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>',
   cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 19h12a2 2 0 0 0 2-2V7"/></svg>',
@@ -91,7 +93,6 @@ const Layout = {
           <div class="brand-mark">${ICONS.brand}</div>
           <div class="brand-text">
             <span class="name">MindFlow</span>
-            <span class="sub">PKM acadêmico · Univille</span>
           </div>
         </div>
         <nav class="nav-desktop">${links}</nav>
