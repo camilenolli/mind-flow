@@ -28,8 +28,11 @@ COPY --from=build /build/target/mindflow-0.1.0-SNAPSHOT.jar app.jar
 # Otimizações para o free tier do Render (512MB RAM, 0.1 CPU):
 #   - Serial GC: melhor para baixa carga e pouca memória
 #   - TieredStopAtLevel=1: pula compilação C2, startup ~30% mais rápido
-#   - Xmx450m: deixa folga para o sistema dentro dos 512MB
-ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss256k -Xmx450m"
+#   - MaxRAMPercentage=70: heap = 70% da RAM disponível (~358MB em 512MB)
+#                          deixa espaço para metaspace, stacks e nativo
+#   - InitialRAMPercentage=50: começa em 50% (256MB) e cresce conforme precisa
+#   - Xss256k: stacks de threads menores liberam memória
+ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=50.0 -Xss256k"
 
 # Render injeta $PORT em runtime; application.properties já lê via ${PORT:8080}
 EXPOSE 8080
