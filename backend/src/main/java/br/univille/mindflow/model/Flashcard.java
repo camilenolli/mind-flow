@@ -33,6 +33,12 @@ public class Flashcard {
     @JoinColumn(name = "focus_profile_id")
     private FocusProfile focusProfile;
 
+    /** Dono do flashcard. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User user;
+
     @PrePersist
     public void onCreate() { this.createdAt = LocalDateTime.now(); }
 
@@ -47,4 +53,6 @@ public class Flashcard {
     public void setNote(Note note) { this.note = note; }
     public FocusProfile getFocusProfile() { return focusProfile; }
     public void setFocusProfile(FocusProfile focusProfile) { this.focusProfile = focusProfile; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

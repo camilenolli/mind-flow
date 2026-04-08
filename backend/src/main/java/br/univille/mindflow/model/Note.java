@@ -45,6 +45,12 @@ public class Note {
     @JoinColumn(name = "focus_profile_id")
     private FocusProfile focusProfile;
 
+    /** Dono da nota. Multi-tenancy: cada usuário só vê as suas. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User user;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -68,4 +74,6 @@ public class Note {
     public void setTags(Set<Tag> tags) { this.tags = tags; }
     public FocusProfile getFocusProfile() { return focusProfile; }
     public void setFocusProfile(FocusProfile focusProfile) { this.focusProfile = focusProfile; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "tag", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
+@Table(name = "tag",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "name"}))
 public class Tag {
 
     @Id
@@ -20,17 +21,25 @@ public class Tag {
     @Column(nullable = false, length = 60)
     private String name;
 
+    /** Tags são per-user: cada usuário tem seu próprio espaço de tags. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
     private Set<Note> notes = new HashSet<>();
 
     public Tag() {}
-    public Tag(String name) { this.name = name; }
+    public Tag(String name, User user) { this.name = name; this.user = user; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
     public Set<Note> getNotes() { return notes; }
     public void setNotes(Set<Note> notes) { this.notes = notes; }
 

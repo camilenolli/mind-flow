@@ -17,13 +17,19 @@ const API = {
 
   async _req(path, options = {}) {
     const url = this.BASE + path;
+
+    // Anexa Bearer token automaticamente se houver
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      ...(options.headers || {}),
+    };
+    const token = (typeof Auth !== "undefined") ? Auth.getToken() : null;
+    if (token) headers["Authorization"] = "Bearer " + token;
+
     let res;
     try {
-      res = await fetch(url, {
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        mode: "cors",
-        ...options,
-      });
+      res = await fetch(url, { mode: "cors", ...options, headers });
     } catch (e) {
       // Falha de rede / CORS / backend offline
       console.error(`[API] Falha de rede em ${options.method || "GET"} ${url}`, e);
@@ -33,6 +39,16 @@ const API = {
         `e se você abriu o frontend via http:// (não file://).`
       );
     }
+
+    // 401: sessão expirada ou token inválido — limpa e redireciona pro login
+    if (res.status === 401 && typeof Auth !== "undefined") {
+      Auth.clear();
+      if (!location.pathname.match(/login\.html|register\.html/)) {
+        window.location.href = "login.html";
+      }
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
+
     if (res.status === 204) return null;
     if (!res.ok) {
       let body = "";

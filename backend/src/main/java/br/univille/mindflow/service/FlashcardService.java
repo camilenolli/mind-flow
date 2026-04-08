@@ -4,6 +4,7 @@ import br.univille.mindflow.dto.FlashcardDTO;
 import br.univille.mindflow.model.Flashcard;
 import br.univille.mindflow.model.FocusProfile;
 import br.univille.mindflow.model.Note;
+import br.univille.mindflow.model.User;
 import br.univille.mindflow.repository.FlashcardRepository;
 import br.univille.mindflow.repository.FocusProfileRepository;
 import br.univille.mindflow.repository.NoteRepository;
@@ -17,6 +18,7 @@ import java.util.Random;
 
 /**
  * MVP: revisão por seleção aleatória. Sprint futura: SM-2 (repetição espaçada).
+ * Todos os métodos são scoped por usuário.
  */
 @Service
 @Transactional
@@ -33,46 +35,54 @@ public class FlashcardService {
         this.profileRepo = profileRepo;
     }
 
-    public List<FlashcardDTO> listAll() { return repo.findAll().stream().map(this::toDTO).toList(); }
-
-    public List<FlashcardDTO> listByFocusProfile(Long profileId) {
-        return repo.findByFocusProfileId(profileId).stream().map(this::toDTO).toList();
+    public List<FlashcardDTO> listAll(User user) {
+        return repo.findByUser(user).stream().map(this::toDTO).toList();
     }
 
-    public Optional<FlashcardDTO> drawRandom(Long focusProfileId) {
+    public List<FlashcardDTO> listByFocusProfile(User user, Long profileId) {
+        return repo.findByUserAndFocusProfileId(user, profileId).stream().map(this::toDTO).toList();
+    }
+
+    public Optional<FlashcardDTO> drawRandom(User user, Long focusProfileId) {
         List<Flashcard> pool = (focusProfileId != null)
-                ? repo.findByFocusProfileId(focusProfileId)
-                : repo.findAll();
+                ? repo.findByUserAndFocusProfileId(user, focusProfileId)
+                : repo.findByUser(user);
         if (pool.isEmpty()) return Optional.empty();
         return Optional.of(toDTO(pool.get(random.nextInt(pool.size()))));
     }
 
-    public FlashcardDTO create(FlashcardDTO dto) {
+    public FlashcardDTO create(User user, FlashcardDTO dto) {
         Flashcard f = new Flashcard();
-        applyDTO(f, dto);
+        f.setUser(user);
+        applyDTO(user, f, dto);
         return toDTO(repo.save(f));
     }
 
-    public FlashcardDTO update(Long id, FlashcardDTO dto) {
-        Flashcard f = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Flashcard não encontrado: " + id));
-        applyDTO(f, dto);
+    public FlashcardDTO update(User user, Long id, FlashcardDTO dto) {
+        Flashcard f = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("Flashcard não encontrado: " + id));
+        applyDTO(user, f, dto);
         return toDTO(repo.save(f));
     }
 
-    public void delete(Long id) { repo.deleteById(id); }
+    public void delete(User user, Long id) {
+        Flashcard f = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("Flashcard não encontrado: " + id));
+        repo.delete(f);
+    }
 
-    private void applyDTO(Flashcard f, FlashcardDTO dto) {
+    private void applyDTO(User user, Flashcard f, FlashcardDTO dto) {
         f.setQuestion(dto.getQuestion());
         f.setAnswer(dto.getAnswer());
         if (dto.getNoteId() != null) {
-            Note n = noteRepo.findById(dto.getNoteId())
+            Note n = noteRepo.findByIdAndUser(dto.getNoteId(), user)
                     .orElseThrow(() -> new EntityNotFoundException("Nota não encontrada"));
             f.setNote(n);
         } else {
             f.setNote(null);
         }
         if (dto.getFocusProfileId() != null) {
-            FocusProfile fp = profileRepo.findById(dto.getFocusProfileId())
+            FocusProfile fp = profileRepo.findByIdAndUser(dto.getFocusProfileId(), user)
                     .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado"));
             f.setFocusProfile(fp);
         } else {

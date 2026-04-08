@@ -1,5 +1,16 @@
 // Layout compartilhado: appbar, nav desktop e bottom nav mobile.
 // Cada página chama Layout.mount("home" | "notes" | "flashcards" | "focus").
+//
+// Auth guard imediato: se layout.js está sendo carregado (= página interna)
+// e o usuário não tem token, redireciona pro login antes de qualquer outro
+// script executar. Evita "flash" de conteúdo não autorizado.
+(function () {
+  if (typeof Auth !== "undefined" && !Auth.isAuthenticated()) {
+    // Esconde o body para não mostrar nada antes do redirect
+    if (document.body) document.body.style.visibility = "hidden";
+    window.location.replace("login.html");
+  }
+})();
 
 const ICONS = {
   // Logo MindFlow: grafo de conhecimento — nó central + 4 satélites conectados.
@@ -24,7 +35,12 @@ const ICONS = {
   sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>',
   sun:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
 };
+
+function escapeAttr(s) {
+  return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
 
 // ============================================================
 // Theme manager — alterna claro/escuro, persistido em localStorage.
@@ -69,17 +85,27 @@ const NAV = [
 
 const Layout = {
   mount(active) {
+    // Auth guard: páginas internas exigem login. Se não houver token,
+    // redireciona para login.html antes de montar qualquer UI.
+    if (typeof Auth !== "undefined" && !Auth.requireAuth()) {
+      return;
+    }
+
     document.body.insertAdjacentHTML("afterbegin", this.appbar(active));
     document.body.insertAdjacentHTML("beforeend", this.bottomNav(active));
     document.body.insertAdjacentHTML("beforeend", '<div id="toast-container"></div>');
 
-    document.getElementById("active-profile").addEventListener("click", () => {
-      window.location.href = "focus.html";
-    });
-
     const themeBtn = document.getElementById("theme-toggle");
     themeBtn.addEventListener("click", () => Theme.toggle());
     Theme.refreshButton();
+
+    // Logout
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        if (typeof Auth !== "undefined") Auth.logout();
+      });
+    }
   },
 
   appbar(active) {
@@ -87,6 +113,10 @@ const Layout = {
       <a href="${n.href}" class="${n.key === active ? "active" : ""}">
         ${ICONS[n.icon]} <span>${n.label}</span>
       </a>`).join("");
+
+    const user = (typeof Auth !== "undefined") ? Auth.getUser() : null;
+    const userName = user ? user.name : "Usuário";
+
     return `
       <header class="appbar">
         <div class="brand">
@@ -97,9 +127,11 @@ const Layout = {
         </div>
         <nav class="nav-desktop">${links}</nav>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema"></button>
-        <div id="active-profile" class="profile-pill" title="Clique para gerenciar perfis">
-          <span class="dot"></span>
-          <span class="text">Carregando…</span>
+        <div class="user-widget" title="${escapeAttr(user ? user.email : '')}">
+          <span class="user-name">${escapeAttr(userName)}</span>
+          <button id="logout-btn" class="logout-btn" type="button" title="Sair" aria-label="Sair">
+            ${ICONS.logout}
+          </button>
         </div>
       </header>`;
   },

@@ -28,6 +28,12 @@ public class FocusProfile {
     @Column(name = "end_time")
     private LocalTime endTime;
 
+    /** Dono do perfil de foco. */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User user;
+
     public FocusProfile() {}
 
     public Long getId() { return id; }
@@ -38,6 +44,8 @@ public class FocusProfile {
     public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
     public LocalTime getEndTime() { return endTime; }
     public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     /** True se o horário atual cai dentro da janela do perfil. */
     public boolean isActiveAt(LocalTime time) {

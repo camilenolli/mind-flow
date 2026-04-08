@@ -17,18 +17,23 @@ services:
     dockerContext: .
 
     # Health check usado pelo Render para saber quando o app subiu.
-    # /api/stats é um endpoint barato, sem auth, retorna JSON.
-    healthCheckPath: /api/stats
+    # /api/health é público (sem auth) e retorna JSON.
+    healthCheckPath: /api/health
 
     # Auto-deploy a cada push em main
     autoDeploy: true
 
     envVars:
-      # Usa o perfil dev (H2 em memória + DataSeeder com exemplos).
-      # Isso é proposital para a demo acadêmica: cada cold start
-      # repopula os dados de exemplo, mantendo o estado limpo.
+      # Usa o perfil dev (H2 em memória + DataSeeder com usuário demo).
+      # A cada cold start o usuário demo@mindflow.com é recriado com
+      # os dados de exemplo, mantendo a demo sempre limpa e funcional.
       - key: SPRING_PROFILES_ACTIVE
         value: dev
+
+      # JWT secret — gerado aleatoriamente pelo Render no primeiro deploy
+      # e mantido constante entre redeploys (não muda quando redeploya).
+      - key: JWT_SECRET
+        generateValue: true
 
       # Locale para mensagens e formatação de data
       - key: LANG

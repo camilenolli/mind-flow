@@ -1,13 +1,13 @@
 package br.univille.mindflow.service;
 
 import br.univille.mindflow.model.FocusProfile;
+import br.univille.mindflow.model.User;
 import br.univille.mindflow.repository.FocusProfileRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -17,15 +17,28 @@ public class FocusProfileService {
 
     public FocusProfileService(FocusProfileRepository repo) { this.repo = repo; }
 
-    public List<FocusProfile> listAll() { return repo.findAll(); }
+    public List<FocusProfile> listAll(User user) {
+        return repo.findByUser(user);
+    }
 
-    public FocusProfile save(FocusProfile p) { return repo.save(p); }
+    public FocusProfile create(User user, FocusProfile p) {
+        p.setId(null);
+        p.setUser(user);
+        return repo.save(p);
+    }
 
-    public void delete(Long id) { repo.deleteById(id); }
+    public FocusProfile update(User user, Long id, FocusProfile p) {
+        FocusProfile existing = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado"));
+        existing.setName(p.getName());
+        existing.setStartTime(p.getStartTime());
+        existing.setEndTime(p.getEndTime());
+        return repo.save(existing);
+    }
 
-    /** Retorna o perfil cuja janela contém o horário atual (primeiro encontrado). */
-    public Optional<FocusProfile> activeNow() {
-        LocalTime now = LocalTime.now();
-        return repo.findAll().stream().filter(p -> p.isActiveAt(now)).findFirst();
+    public void delete(User user, Long id) {
+        FocusProfile existing = repo.findByIdAndUser(id, user)
+                .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado"));
+        repo.delete(existing);
     }
 }

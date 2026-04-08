@@ -28,6 +28,8 @@ public class StartupBanner {
         log.info("  Swagger  : {}/swagger-ui.html", base);
         if ("dev".equals(profile)) {
             log.info("  H2 console: {}/h2-console  (JDBC: jdbc:h2:mem:mindflow)", base);
+            log.info("");
+            log.info("  Conta demo: demo@mindflow.com / demo123");
         }
         log.info("==========================================================");
         log.info("");
