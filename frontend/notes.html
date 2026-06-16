@@ -34,6 +34,17 @@
           <div class="field"><span>Vincular a perfil de foco</span>
             <select id="note-profile"><option value="">— nenhum —</option></select>
           </div>
+          <div class="field">
+            <span>Imagem (opcional)</span>
+            <label class="img-upload-label" id="img-upload-label">
+              <input type="file" id="note-image" accept="image/*" style="display:none" />
+              <span id="img-upload-text">Selecionar imagem…</span>
+            </label>
+            <div id="img-preview-wrap" style="display:none">
+              <img id="img-preview" alt="preview" />
+              <button type="button" class="ghost img-remove-btn" id="img-remove">✕ Remover imagem</button>
+            </div>
+          </div>
           <div class="actions">
             <button type="submit" id="save-btn">Salvar</button>
             <button type="button" class="ghost" id="note-reset">Limpar</button>

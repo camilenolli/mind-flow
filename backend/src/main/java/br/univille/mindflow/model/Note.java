@@ -33,6 +33,13 @@ public class Note {
      * Relação N:N com Tag — base do "conceitos relacionados".
      * Duas notas que compartilham ao menos uma tag são consideradas relacionadas.
      */
+    @Lob
+    @Column(name = "image_data", columnDefinition = "TEXT")
+    private String imageData;
+
+    @Column(name = "image_file_name", length = 255)
+    private String imageFileName;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "note_tag",
@@ -76,4 +83,8 @@ public class Note {
     public void setFocusProfile(FocusProfile focusProfile) { this.focusProfile = focusProfile; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public String getImageData() { return imageData; }
+    public void setImageData(String imageData) { this.imageData = imageData; }
+    public String getImageFileName() { return imageFileName; }
+    public void setImageFileName(String imageFileName) { this.imageFileName = imageFileName; }
 }

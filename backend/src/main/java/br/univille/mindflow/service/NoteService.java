@@ -79,6 +79,8 @@ public class NoteService {
         note.setTitle(dto.getTitle());
         note.setContent(dto.getContent());
         note.setTags(resolveTags(user, dto.getTags()));
+        note.setImageData(dto.getImageData());
+        note.setImageFileName(dto.getImageFileName());
         if (dto.getFocusProfileId() != null) {
             FocusProfile fp = profileRepo.findByIdAndUser(dto.getFocusProfileId(), user)
                     .orElseThrow(() -> new EntityNotFoundException("Perfil não encontrado"));
@@ -108,6 +110,8 @@ public class NoteService {
         d.setFocusProfileId(n.getFocusProfile() != null ? n.getFocusProfile().getId() : null);
         d.setCreatedAt(n.getCreatedAt());
         d.setUpdatedAt(n.getUpdatedAt());
+        d.setImageData(n.getImageData());
+        d.setImageFileName(n.getImageFileName());
         return d;
     }
 }

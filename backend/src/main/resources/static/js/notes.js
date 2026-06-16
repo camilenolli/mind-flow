@@ -22,14 +22,54 @@ const searchInput  = document.getElementById("note-search");
 const countBadge   = document.getElementById("notes-count");
 const resetBtn     = document.getElementById("note-reset");
 
+// Image elements
+const imageInput     = document.getElementById("note-image");
+const imgPreviewWrap = document.getElementById("img-preview-wrap");
+const imgPreview     = document.getElementById("img-preview");
+const imgRemoveBtn   = document.getElementById("img-remove");
+const imgUploadText  = document.getElementById("img-upload-text");
+
 let allNotes = [];
 let activeProfileId = null;
 let selectedId = null;
+let currentImageData = null;
+let currentImageFileName = null;
 
+// ── Image upload handling ─────────────────────────────────────────────────────
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    Toast.err("Imagem muito grande (máx. 2 MB)");
+    imageInput.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentImageData = e.target.result;
+    currentImageFileName = file.name;
+    imgPreview.src = currentImageData;
+    imgPreviewWrap.style.display = "block";
+    imgUploadText.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
+
+imgRemoveBtn.addEventListener("click", clearImage);
+
+function clearImage() {
+  currentImageData = null;
+  currentImageFileName = null;
+  imageInput.value = "";
+  imgPreview.src = "";
+  imgPreviewWrap.style.display = "none";
+  imgUploadText.textContent = "Selecionar imagem…";
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
 async function bootstrap() {
   await loadProfiles();
   await refreshList();
-  // deep-link via hash (#42 abre nota 42)
   if (location.hash) {
     const id = parseInt(location.hash.slice(1), 10);
     if (id) selectNote(id);
@@ -82,7 +122,6 @@ function renderList() {
       selectNote(parseInt(li.dataset.id, 10));
     });
   });
-  // re-marcar selecionada
   if (selectedId) {
     const el = list.querySelector(`[data-id="${selectedId}"]`);
     if (el) el.classList.add("selected");
@@ -92,8 +131,12 @@ function renderList() {
 function noteCard(n, i) {
   const chips = [...n.tags].slice(0, 5)
     .map(t => `<span class="chip tiny">${escapeHtml(t)}</span>`).join("");
+  const imgHtml = n.imageData
+    ? `<img class="note-thumb" src="${n.imageData}" alt="${escapeHtml(n.imageFileName || 'imagem')}" />`
+    : "";
   return `
   <li class="card-item" data-id="${n.id}" style="animation-delay:${i*40}ms">
+    ${imgHtml}
     <h3>${escapeHtml(n.title)}</h3>
     <p>${escapeHtml(n.content)}</p>
     <div class="meta">${chips}<span class="muted" style="font-size:0.7rem; margin-left:auto">${timeAgo(n.updatedAt)}</span></div>
@@ -131,6 +174,16 @@ window.editNote = async function(id) {
   contentInput.value = n.content;
   tagsInput.value = [...n.tags].join(", ");
   profileSel.value = n.focusProfileId || "";
+  // Restore image state
+  if (n.imageData) {
+    currentImageData = n.imageData;
+    currentImageFileName = n.imageFileName || "";
+    imgPreview.src = n.imageData;
+    imgPreviewWrap.style.display = "block";
+    imgUploadText.textContent = n.imageFileName || "imagem anexada";
+  } else {
+    clearImage();
+  }
   setFormTitle("Editar nota");
   document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
 };
@@ -152,6 +205,8 @@ form.addEventListener("submit", async e => {
     content: contentInput.value.trim(),
     tags: tagsInput.value.split(",").map(s => s.trim()).filter(Boolean),
     focusProfileId: profileSel.value ? parseInt(profileSel.value, 10) : null,
+    imageData: currentImageData || null,
+    imageFileName: currentImageFileName || null,
   };
   try {
     if (idInput.value) {
@@ -174,7 +229,12 @@ filterToggle.addEventListener("change", refreshList);
 searchInput.addEventListener("input", renderList);
 document.addEventListener("profile-changed", () => loadProfiles().then(refreshList));
 
-function resetForm() { idInput.value = ""; form.reset(); setFormTitle("Nova nota"); }
+function resetForm() {
+  idInput.value = "";
+  form.reset();
+  clearImage();
+  setFormTitle("Nova nota");
+}
 function empty(t, m) { return `<div class="empty">${ICONS.layers}<p><strong>${t}</strong></p><p>${m}</p></div>`; }
 
 bootstrap();
