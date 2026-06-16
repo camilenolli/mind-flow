@@ -46,6 +46,7 @@ function animateCount(el) {
 
 async function loadRecent() {
   const list = document.getElementById("recent-notes");
+  list.innerHTML = spinnerHtml();
   try {
     const notes = await API.recentNotes();
     if (!notes.length) {

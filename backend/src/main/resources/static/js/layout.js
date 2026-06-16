@@ -204,3 +204,24 @@ function timeAgo(iso) {
   if (diff < 2592000) return `há ${Math.floor(diff/86400)}d`;
   return new Date(iso).toLocaleDateString("pt-BR");
 }
+
+function spinnerHtml(label = "Carregando…") {
+  return `<div class="loading-state"><div class="spinner"></div><span>${label}</span></div>`;
+}
+
+// ============ Lightbox ============
+const Lightbox = {
+  open(src, alt = "") {
+    const bd = document.createElement("div");
+    bd.className = "lightbox-backdrop";
+    bd.innerHTML = `
+      <button class="lightbox-close" title="Fechar (Esc)">✕</button>
+      <img class="lightbox-img" src="${src}" alt="${escapeAttr(alt)}" />`;
+    document.body.appendChild(bd);
+    const close = () => bd.remove();
+    bd.addEventListener("click", e => { if (e.target === bd || e.target.classList.contains("lightbox-close")) close(); });
+    document.addEventListener("keydown", function esc(e) {
+      if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc); }
+    });
+  },
+};

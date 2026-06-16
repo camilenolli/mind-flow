@@ -86,6 +86,7 @@ async function loadProfiles() {
 
 async function refreshList() {
   const useFilter = filterToggle.checked && activeProfileId != null;
+  list.innerHTML = spinnerHtml();
   try {
     allNotes = await API.listNotes(useFilter ? activeProfileId : null);
     renderList();
@@ -132,7 +133,7 @@ function noteCard(n, i) {
   const chips = [...n.tags].slice(0, 5)
     .map(t => `<span class="chip tiny">${escapeHtml(t)}</span>`).join("");
   const imgHtml = n.imageData
-    ? `<img class="note-thumb" src="${n.imageData}" alt="${escapeHtml(n.imageFileName || 'imagem')}" />`
+    ? `<img class="note-thumb" src="${n.imageData}" alt="${escapeHtml(n.imageFileName || 'imagem')}" onclick="Lightbox.open(this.src, this.alt)" />`
     : "";
   return `
   <li class="card-item" data-id="${n.id}" style="animation-delay:${i*40}ms">
@@ -228,6 +229,32 @@ resetBtn.addEventListener("click", resetForm);
 filterToggle.addEventListener("change", refreshList);
 searchInput.addEventListener("input", renderList);
 document.addEventListener("profile-changed", () => loadProfiles().then(refreshList));
+
+// Ctrl+Enter salva o formulário
+contentInput.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") form.requestSubmit();
+});
+
+// Drag & drop de imagem no formulário
+const imgLabel = document.getElementById("img-upload-label");
+imgLabel.addEventListener("dragover", e => { e.preventDefault(); imgLabel.style.borderColor = "var(--c2)"; });
+imgLabel.addEventListener("dragleave", () => { imgLabel.style.borderColor = ""; });
+imgLabel.addEventListener("drop", e => {
+  e.preventDefault();
+  imgLabel.style.borderColor = "";
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
+  if (file.size > 2 * 1024 * 1024) { Toast.err("Imagem muito grande (máx. 2 MB)"); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentImageData = ev.target.result;
+    currentImageFileName = file.name;
+    imgPreview.src = currentImageData;
+    imgPreviewWrap.style.display = "block";
+    imgUploadText.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+});
 
 function resetForm() {
   idInput.value = "";

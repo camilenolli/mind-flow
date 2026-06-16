@@ -17,6 +17,7 @@ const list     = document.getElementById("profiles-list");
 const resetBtn = document.getElementById("profile-reset");
 
 async function refresh() {
+  list.innerHTML = spinnerHtml();
   try {
     const profiles = await API.listProfiles();
     const manual = ProfileState.getManual();

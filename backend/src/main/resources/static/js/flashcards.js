@@ -39,6 +39,7 @@ async function bootstrap() {
 }
 
 async function refreshList() {
+  list.innerHTML = spinnerHtml();
   try {
     const cards = await API.listCards();
     countBadge.textContent = cards.length ? `(${cards.length})` : "";
