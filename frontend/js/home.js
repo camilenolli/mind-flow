@@ -67,28 +67,16 @@ qImgLabel.addEventListener("drop", e => {
 const qSuggestBtn = document.getElementById("q-suggest-btn");
 const qTagsInput  = document.getElementById("q-tags");
 
-qSuggestBtn.addEventListener("click", async () => {
+qSuggestBtn.addEventListener("click", () => {
   const title   = document.getElementById("q-title").value.trim();
   const content = document.getElementById("q-content").value.trim();
   if (!title && !content) { Toast.info("Preencha título ou conteúdo para sugerir tags"); return; }
-  const orig = qSuggestBtn.innerHTML;
-  qSuggestBtn.disabled = true;
-  qSuggestBtn.innerHTML = `<span class="spinner spinner-sm"></span>`;
-  try {
-    const tags = await API.suggestTags(title, content);
-    if (tags && tags.length) {
-      qTagsInput.value = tags.join(", ");
-      Toast.ok(`${tags.length} tags sugeridas!`);
-    } else {
-      Toast.info("Nenhuma sugestão encontrada");
-    }
-  } catch (err) {
-    if (!err.message.includes("Sessão expirada")) {
-      Toast.err("Não foi possível sugerir tags: " + err.message);
-    }
-  } finally {
-    qSuggestBtn.disabled = false;
-    qSuggestBtn.innerHTML = orig;
+  const tags = suggestTagsLocal(title, content);
+  if (tags.length) {
+    qTagsInput.value = tags.join(", ");
+    Toast.ok(`${tags.length} tags sugeridas!`);
+  } else {
+    Toast.info("Nenhuma sugestão encontrada");
   }
 });
 

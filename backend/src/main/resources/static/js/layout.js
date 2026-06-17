@@ -209,6 +209,44 @@ function spinnerHtml(label = "Carregando…") {
   return `<div class="loading-state"><div class="spinner"></div><span>${label}</span></div>`;
 }
 
+// ============ Sugestão de tags local (sem API, sem autenticação) ============
+function suggestTagsLocal(title, content) {
+  const STOPWORDS = new Set([
+    "a","ao","aos","as","ate","com","como","da","das","de","dela","delas","dele","deles",
+    "depois","do","dos","e","ela","elas","ele","eles","em","entre","essa","essas","esse",
+    "esses","esta","estas","este","estes","eu","foi","for","foram","havia","isso","isto",
+    "ja","lhe","lhes","mais","mas","me","mesmo","meu","minha","muito","na","nas","nem",
+    "no","nos","nao","num","numa","o","onde","os","ou","para","pela","pelas","pelo","pelos",
+    "por","porque","que","quando","quem","se","seja","sem","ser","seu","seus","si","sim",
+    "sobre","sua","suas","tambem","te","tem","tendo","ter","toda","todas","todo","todos",
+    "tu","tua","tuas","um","uma","umas","uns","voce","vos","aqui","ali","entao","assim",
+    "qual","quais","pois","pode","podem","deve","devem","sao","esta","so","nele","nela",
+    "neles","nelas","aquele","aquela","aqueles","aquelas","ha","la","esse","esse","esta"
+  ]);
+
+  const combined = ((title || "") + " " + (content || "")).trim();
+  if (!combined) return [];
+
+  // Siglas: sequências de 2+ letras maiúsculas (DNS, HTTP, SECI…)
+  const acronyms = [...new Set((combined.match(/\b[A-Z][A-Z0-9]+\b/g) || []))].slice(0, 3);
+
+  // Frequência de palavras (só letras portuguesas, mín. 4 chars)
+  const freq = {};
+  combined.toLowerCase()
+    .split(/[^a-záàâãéêíóôõúüç]+/)
+    .filter(w => w.length >= 4 && !STOPWORDS.has(w))
+    .forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+
+  const topWords = Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([w]) => w);
+
+  return [...new Set([...acronyms, ...topWords])]
+    .slice(0, 7)
+    .map(t => t.charAt(0).toUpperCase() + t.slice(1));
+}
+
 // ============ Lightbox ============
 const Lightbox = {
   open(src, alt = "") {

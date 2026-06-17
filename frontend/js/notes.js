@@ -225,30 +225,18 @@ form.addEventListener("submit", async e => {
   }
 });
 
-// ── Sugestão de tags com IA ───────────────────────────────────────────────────
+// ── Sugestão de tags (processamento local, sem rede) ─────────────────────────
 const suggestBtn = document.getElementById("suggest-tags-btn");
-suggestBtn.addEventListener("click", async () => {
+suggestBtn.addEventListener("click", () => {
   const title   = titleInput.value.trim();
   const content = contentInput.value.trim();
   if (!title && !content) { Toast.info("Preencha título ou conteúdo para sugerir tags"); return; }
-  const orig = suggestBtn.innerHTML;
-  suggestBtn.disabled = true;
-  suggestBtn.innerHTML = `<span class="spinner spinner-sm"></span> Analisando…`;
-  try {
-    const tags = await API.suggestTags(title, content);
-    if (tags && tags.length) {
-      tagsInput.value = tags.join(", ");
-      Toast.ok(`${tags.length} tags sugeridas!`);
-    } else {
-      Toast.info("Nenhuma sugestão encontrada");
-    }
-  } catch (err) {
-    if (!err.message.includes("Sessão expirada")) {
-      Toast.err("Não foi possível sugerir tags: " + err.message);
-    }
-  } finally {
-    suggestBtn.disabled = false;
-    suggestBtn.innerHTML = orig;
+  const tags = suggestTagsLocal(title, content);
+  if (tags.length) {
+    tagsInput.value = tags.join(", ");
+    Toast.ok(`${tags.length} tags sugeridas!`);
+  } else {
+    Toast.info("Nenhuma sugestão encontrada");
   }
 });
 
