@@ -1,9 +1,7 @@
 package br.univille.mindflow.controller;
 
-import br.univille.mindflow.security.UserPrincipal;
 import br.univille.mindflow.service.TagSuggestionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,10 +18,7 @@ public class TagSuggestionController {
     }
 
     @PostMapping("/suggest-tags")
-    public ResponseEntity<List<String>> suggestTags(
-        @RequestBody Map<String, String> body,
-        @AuthenticationPrincipal UserPrincipal me
-    ) {
+    public ResponseEntity<List<String>> suggestTags(@RequestBody Map<String, String> body) {
         List<String> tags = service.suggest(
             body.getOrDefault("title", ""),
             body.getOrDefault("content", "")

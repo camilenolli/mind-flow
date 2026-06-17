@@ -58,6 +58,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
 
+                // Sugestão de tags: processamento local de texto, sem dados do usuário
+                .requestMatchers(HttpMethod.POST, "/api/ai/suggest-tags").permitAll()
+
                 // Swagger
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
