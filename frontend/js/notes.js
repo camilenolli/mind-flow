@@ -225,6 +225,31 @@ form.addEventListener("submit", async e => {
   }
 });
 
+// ── Sugestão de tags com IA ───────────────────────────────────────────────────
+const suggestBtn = document.getElementById("suggest-tags-btn");
+suggestBtn.addEventListener("click", async () => {
+  const title   = titleInput.value.trim();
+  const content = contentInput.value.trim();
+  if (!title && !content) { Toast.info("Preencha título ou conteúdo para sugerir tags"); return; }
+  const orig = suggestBtn.innerHTML;
+  suggestBtn.disabled = true;
+  suggestBtn.innerHTML = `<span class="spinner spinner-sm"></span> Consultando…`;
+  try {
+    const tags = await API.suggestTags(title, content);
+    if (tags && tags.length) {
+      tagsInput.value = tags.join(", ");
+      Toast.ok(`${tags.length} tags sugeridas pela IA!`);
+    } else {
+      Toast.info("Sem sugestões disponíveis");
+    }
+  } catch (err) {
+    Toast.err("IA indisponível: " + err.message);
+  } finally {
+    suggestBtn.disabled = false;
+    suggestBtn.innerHTML = orig;
+  }
+});
+
 resetBtn.addEventListener("click", resetForm);
 filterToggle.addEventListener("change", refreshList);
 searchInput.addEventListener("input", renderList);

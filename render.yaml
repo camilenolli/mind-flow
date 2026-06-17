@@ -38,3 +38,9 @@ services:
       # Locale para mensagens e formatação de data
       - key: LANG
         value: pt_BR.UTF-8
+
+      # Chave da API Anthropic para sugestão de tags com IA.
+      # Defina manualmente no Render dashboard (Environment > Add env var).
+      # Sem ela o botão "Sugerir tags" retorna aviso gracioso — app funciona normalmente.
+      # - key: ANTHROPIC_API_KEY
+      #   value: sk-ant-...

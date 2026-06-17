@@ -28,8 +28,12 @@
           <div class="field"><span>Conteúdo</span>
             <textarea id="note-content" rows="6" required placeholder="Escreva livremente…"></textarea>
           </div>
-          <div class="field"><span>Tags (separadas por vírgula — novas são criadas automaticamente)</span>
-            <input type="text" id="note-tags" placeholder="DNS, Segurança, Redes" />
+          <div class="field">
+            <span>Tags (separadas por vírgula — novas são criadas automaticamente)</span>
+            <div class="tag-suggest-row">
+              <input type="text" id="note-tags" placeholder="DNS, Segurança, Redes" />
+              <button type="button" id="suggest-tags-btn" class="suggest-btn" title="Sugerir tags com IA">✨ Sugerir</button>
+            </div>
           </div>
           <div class="field"><span>Vincular a perfil de foco</span>
             <select id="note-profile"><option value="">— nenhum —</option></select>

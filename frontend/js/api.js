@@ -96,6 +96,11 @@ const API = {
   // Tags + Stats
   listTags()                  { return this._req(`/tags`); },
   stats()                     { return this._req(`/stats`); },
+
+  // IA — sugestão de tags
+  suggestTags(title, content) {
+    return this._req(`/ai/suggest-tags`, { method: "POST", body: JSON.stringify({ title, content }) });
+  },
 };
 
 // ============================================================

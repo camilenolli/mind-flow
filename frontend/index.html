@@ -46,7 +46,21 @@
           </div>
           <div class="field">
             <span>Tags (vírgula)</span>
-            <input type="text" id="q-tags" placeholder="DNS, Redes" />
+            <div class="tag-suggest-row">
+              <input type="text" id="q-tags" placeholder="DNS, Redes" />
+              <button type="button" id="q-suggest-btn" class="suggest-btn" title="Sugerir tags com IA">✨</button>
+            </div>
+          </div>
+          <div class="field">
+            <span>Imagem (opcional)</span>
+            <label class="img-upload-label" id="q-img-label">
+              <input type="file" id="q-image" accept="image/*" style="display:none" />
+              <span id="q-img-text">Selecionar imagem…</span>
+            </label>
+            <div id="q-img-preview-wrap" style="display:none">
+              <img id="q-img-preview" alt="preview" />
+              <button type="button" class="ghost img-remove-btn" id="q-img-remove">✕ Remover</button>
+            </div>
           </div>
           <div class="actions">
             <button type="submit" id="quick-submit-btn">Salvar nota</button>
