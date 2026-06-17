@@ -78,12 +78,14 @@ qSuggestBtn.addEventListener("click", async () => {
     const tags = await API.suggestTags(title, content);
     if (tags && tags.length) {
       qTagsInput.value = tags.join(", ");
-      Toast.ok(`${tags.length} tags sugeridas pela IA!`);
+      Toast.ok(`${tags.length} tags sugeridas!`);
     } else {
-      Toast.info("Sem sugestões disponíveis");
+      Toast.info("Nenhuma sugestão encontrada");
     }
   } catch (err) {
-    Toast.err("IA indisponível: " + err.message);
+    if (!err.message.includes("Sessão expirada")) {
+      Toast.err("Não foi possível sugerir tags: " + err.message);
+    }
   } finally {
     qSuggestBtn.disabled = false;
     qSuggestBtn.innerHTML = orig;
