@@ -90,12 +90,13 @@ public class NoteService {
         }
     }
 
-    /** Resolve nomes de tag em entidades, criando as que não existem (case-insensitive) — sempre per-user. */
+    /** Resolve nomes de tag em entidades (máx. 3), criando as que não existem (case-insensitive) — sempre per-user. */
     private Set<Tag> resolveTags(User user, Set<String> names) {
         if (names == null) return new HashSet<>();
         return names.stream()
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
+                .limit(3)
                 .map(name -> tagRepo.findByUserAndNameIgnoreCase(user, name)
                         .orElseGet(() -> tagRepo.save(new Tag(name, user))))
                 .collect(Collectors.toSet());

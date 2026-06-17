@@ -201,10 +201,12 @@ window.removeNote = async function(id) {
 
 form.addEventListener("submit", async e => {
   e.preventDefault();
+  const allTags = tagsInput.value.split(",").map(s => s.trim()).filter(Boolean);
+  if (allTags.length > 3) Toast.info("Máximo 3 tags por nota — as 3 primeiras foram mantidas.");
   const dto = {
     title: titleInput.value.trim(),
     content: contentInput.value.trim(),
-    tags: tagsInput.value.split(",").map(s => s.trim()).filter(Boolean),
+    tags: allTags.slice(0, 3),
     focusProfileId: profileSel.value ? parseInt(profileSel.value, 10) : null,
     imageData: currentImageData || null,
     imageFileName: currentImageFileName || null,

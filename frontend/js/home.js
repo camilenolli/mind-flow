@@ -160,10 +160,12 @@ function emptyState(title, msg) {
 // ── Ação rápida ───────────────────────────────────────────────────────────────
 document.getElementById("quick-form").addEventListener("submit", async e => {
   e.preventDefault();
+  const allTags = qTagsInput.value.split(",").map(s => s.trim()).filter(Boolean);
+  if (allTags.length > 3) Toast.info("Máximo 3 tags por nota — as 3 primeiras foram mantidas.");
   const dto = {
     title:         document.getElementById("q-title").value.trim(),
     content:       document.getElementById("q-content").value.trim(),
-    tags:          qTagsInput.value.split(",").map(s => s.trim()).filter(Boolean),
+    tags:          allTags.slice(0, 3),
     imageData:     qImageData || null,
     imageFileName: qImageFileName || null,
   };

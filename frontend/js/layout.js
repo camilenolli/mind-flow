@@ -239,11 +239,11 @@ function suggestTagsLocal(title, content) {
 
   const topWords = Object.entries(freq)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
+    .slice(0, 3)
     .map(([w]) => w);
 
   return [...new Set([...acronyms, ...topWords])]
-    .slice(0, 7)
+    .slice(0, 3)
     .map(t => t.charAt(0).toUpperCase() + t.slice(1));
 }
 
