@@ -20,25 +20,14 @@ public class TagSuggestionController {
     }
 
     @PostMapping("/suggest-tags")
-    public ResponseEntity<?> suggestTags(
+    public ResponseEntity<List<String>> suggestTags(
         @RequestBody Map<String, String> body,
         @AuthenticationPrincipal UserPrincipal me
     ) {
-        if (!service.isConfigured()) {
-            return ResponseEntity.status(503).body(
-                Map.of("error", "Sugestão de tags não disponível: ANTHROPIC_API_KEY não configurada.")
-            );
-        }
-        try {
-            List<String> tags = service.suggest(
-                body.getOrDefault("title", ""),
-                body.getOrDefault("content", "")
-            );
-            return ResponseEntity.ok(tags);
-        } catch (Exception e) {
-            return ResponseEntity.status(502).body(
-                Map.of("error", "Falha ao consultar IA: " + e.getMessage())
-            );
-        }
+        List<String> tags = service.suggest(
+            body.getOrDefault("title", ""),
+            body.getOrDefault("content", "")
+        );
+        return ResponseEntity.ok(tags);
     }
 }

@@ -1,75 +1,65 @@
 package br.univille.mindflow.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+/**
+ * Extração de tags por frequência de termos — 100% local, sem custo, sem API externa.
+ * Prioriza siglas, termos capitalizados e palavras com alta frequência após remover stopwords PT-BR.
+ */
 @Service
 public class TagSuggestionService {
 
-    private final String apiKey;
-    private final RestClient restClient;
-
-    public TagSuggestionService(@Value("${anthropic.api-key:}") String apiKey) {
-        this.apiKey = apiKey;
-        this.restClient = RestClient.create();
-    }
-
-    public boolean isConfigured() {
-        return apiKey != null && !apiKey.isBlank();
-    }
+    private static final Set<String> STOPWORDS = Set.of(
+        "a","ao","aos","as","até","com","como","da","das","de","dela","delas","dele","deles",
+        "dem","depois","do","dos","e","é","ela","elas","ele","eles","em","entre","era","essa",
+        "essas","esse","esses","esta","estas","este","estes","eu","foi","for","foram","havia",
+        "isso","isto","já","lhe","lhes","mais","mas","me","mesmo","meu","minha","muito","na",
+        "nas","nem","no","nos","não","nós","num","numa","o","onde","os","ou","para","pela",
+        "pelas","pelo","pelos","por","porque","que","quando","quem","se","seja","sem","ser",
+        "seu","seus","si","sim","sobre","sua","suas","também","te","tem","tendo","ter","toda",
+        "todas","todo","todos","tu","tua","tuas","um","uma","umas","uns","você","vós","à",
+        "às","àquela","àquele","àqueles","àquelas","há","lá","só","nele","nela","neles","nelas",
+        "aqui","ali","então","assim","qual","quais","pois","pode","podem","deve","devem",
+        "são","foi","ser","está","são","foi","ser","esse","esta","quando","onde","como"
+    );
 
     public List<String> suggest(String title, String content) {
-        if (!isConfigured()) {
-            throw new IllegalStateException("ANTHROPIC_API_KEY não configurada no servidor.");
-        }
+        String combined = (title == null ? "" : title) + " " + (content == null ? "" : content);
 
-        String truncated = content != null && content.length() > 600
-                ? content.substring(0, 600) + "…"
-                : (content != null ? content : "");
+        // 1. Extrair siglas e termos totalmente maiúsculos (ex: DNS, HTTP, SECI)
+        List<String> acronyms = Arrays.stream(combined.split("[\\s\\p{Punct}]+"))
+            .filter(w -> w.length() >= 2 && w.equals(w.toUpperCase()) && w.matches("[A-Z0-9]+"))
+            .distinct()
+            .limit(3)
+            .collect(Collectors.toList());
 
-        String prompt = String.format(
-            "Você é um assistente de gestão do conhecimento. Analise o título e conteúdo " +
-            "da nota abaixo e sugira de 5 a 7 tags curtas e relevantes no mesmo idioma do conteúdo. " +
-            "Retorne APENAS as tags separadas por vírgula, sem explicações, numeração ou pontuação extra.\n\n" +
-            "Título: %s\nConteúdo: %s",
-            title != null ? title : "", truncated
-        );
+        // 2. Tokenizar, normalizar e filtrar stopwords
+        Map<String, Long> freq = Arrays.stream(combined.toLowerCase().split("[\\s\\p{Punct}\\d]+"))
+            .filter(w -> w.length() >= 4)
+            .filter(w -> !STOPWORDS.contains(w))
+            .filter(w -> w.matches("[a-záàâãéêíóôõúüç]+"))
+            .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
 
-        var requestBody = Map.of(
-            "model", "claude-haiku-4-5-20251001",
-            "max_tokens", 120,
-            "messages", List.of(Map.of("role", "user", "content", prompt))
-        );
+        // 3. Top palavras por frequência
+        List<String> topWords = freq.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+            .map(Map.Entry::getKey)
+            .limit(6)
+            .collect(Collectors.toList());
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> response = restClient.post()
-            .uri("https://api.anthropic.com/v1/messages")
-            .header("x-api-key", apiKey)
-            .header("anthropic-version", "2023-06-01")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(requestBody)
-            .retrieve()
-            .body(Map.class);
+        // 4. Combinar siglas + palavras, remover duplicatas, limitar a 7
+        List<String> result = Stream.concat(acronyms.stream(), topWords.stream())
+            .distinct()
+            .limit(7)
+            .collect(Collectors.toList());
 
-        if (response == null) return List.of();
-
-        @SuppressWarnings("unchecked")
-        var blocks = (List<Map<String, Object>>) response.get("content");
-        if (blocks == null || blocks.isEmpty()) return List.of();
-
-        String text = (String) blocks.get(0).get("text");
-        if (text == null || text.isBlank()) return List.of();
-
-        return Arrays.stream(text.split(","))
-            .map(s -> s.trim().replaceAll("[.!?]$", ""))
-            .filter(s -> !s.isEmpty())
-            .limit(8)
-            .toList();
+        // Capitalizar primeira letra de cada tag
+        return result.stream()
+            .map(t -> Character.toUpperCase(t.charAt(0)) + t.substring(1))
+            .collect(Collectors.toList());
     }
 }
